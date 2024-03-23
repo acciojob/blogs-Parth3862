@@ -1,7 +1,8 @@
 package com.driver.services;
 
-import com.driver.models.*;
-import com.driver.repositories.*;
+import com.driver.models.Image;
+import com.driver.repositories.BlogRepository;
+import com.driver.repositories.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,21 +12,48 @@ import java.util.List;
 public class ImageService {
 
     @Autowired
-    BlogRepository blogRepository2;
+    BlogRepository blogRepository;
+
     @Autowired
-    ImageRepository imageRepository2;
+    ImageRepository imageRepository;
 
     public Image addImage(Integer blogId, String description, String dimensions){
-        //add an image to the blog
-
+        // Check if the blog exists
+        if (blogRepository.existsById(blogId)) {
+            // Create a new image object
+            Image image = new Image();
+            image.setDescription(description);
+            image.setDimensions(dimensions);
+            image.setBlog(blogRepository.findById(blogId).orElse(null));
+            return imageRepository.save(image);
+        } else {
+            return null;
+        }
     }
 
     public void deleteImage(Integer id){
 
+        if (imageRepository.existsById(id)) {
+
+            imageRepository.deleteById(id);
+        }
     }
 
     public int countImagesInScreen(Integer id, String screenDimensions) {
-        //Find the number of images of given dimensions that can fit in a screen having `screenDimensions`
 
+        List<Image> images = imageRepository.findByBlogId(id);
+
+        int imagesThatFit = 0;
+        for (Image image : images) {
+            if (checkIfImageFitsScreen(image.getDimensions(), screenDimensions)) {
+                imagesThatFit++;
+            }
+        }
+
+        return imagesThatFit;
+    }
+
+    private boolean checkIfImageFitsScreen(String imageDimensions, String screenDimensions) {
+        return true;
     }
 }
